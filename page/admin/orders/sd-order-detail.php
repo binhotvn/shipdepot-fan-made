@@ -377,14 +377,14 @@ function sd_submit_data_and_save_to_order_meta_data(WC_Order $order, $is_edit, $
                         $order->add_order_note($order_note);
 
 
-                        $send_tracking_code = get_option('sd_send_email_tracking_code')
+                        $send_tracking_code = get_option('sd_send_email_tracking_code');
                         if (!Ship_Depot_Helper::check_null_or_empty($send_tracking_code) && $send_tracking_code == 'yes') {
                 
                                         $customer_notification_notes = __('Đơn hàng quý khách đang giao hàng thông qua Giao Hàng Tiết Kiệm với mã vận đơn: %s' , 'ship-depot-translate');
                                         $customer_notification_notes = sprintf($customer_notification_notes, $rs->Data->TrackingNumber);
                                         $order->add_order_note($customer_notification_notes, 1);
                         }
-                        
+
                         $can_log = get_option('sd_accept_debug_log');
 
                         if (!Ship_Depot_Helper::check_null_or_empty($rs->Data->ShipDepotID)) {

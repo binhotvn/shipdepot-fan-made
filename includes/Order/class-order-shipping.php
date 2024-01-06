@@ -805,7 +805,7 @@ function create_ship($order_id, bool $from_checkout)
         $order->add_order_note($order_note);
 
 
-        $send_tracking_code = get_option('sd_send_email_tracking_code')
+        $send_tracking_code = get_option('sd_send_email_tracking_code');
         if (!Ship_Depot_Helper::check_null_or_empty($send_tracking_code) && $send_tracking_code == 'yes') {
 
 
