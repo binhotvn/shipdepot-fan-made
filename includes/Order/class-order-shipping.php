@@ -803,6 +803,17 @@ function create_ship($order_id, bool $from_checkout)
         }
         $order_note = $order_note . ' ' . $rs->Data->TrackingNumber;
         $order->add_order_note($order_note);
+
+
+        $send_tracking_code = get_option('sd_send_email_tracking_code')
+        if (!Ship_Depot_Helper::check_null_or_empty($send_tracking_code) && $send_tracking_code == 'yes') {
+
+
+            $customer_notification_notes = __('Đơn hàng quý khách đang được giao hàng thông qua %s với mã vận đơn %s', 'ship-depot-translate');
+            $customer_notification_notes = sprintf($customer_notification_notes, $selected_courier, $rs->Data->TrackingNumber);
+            $order->add_order_note($customer_notification_notes, 1);
+        }
+
         Ship_Depot_Helper::UpdateOrderMetadata($order_id, 'sd_ship_info', json_encode($rs->Data, JSON_UNESCAPED_UNICODE));
         return true;
     } else {

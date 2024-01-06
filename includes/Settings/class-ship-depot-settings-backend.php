@@ -267,6 +267,8 @@ if (!class_exists('Ship_Depot_Settings')) :
                 // $this->save_option('sd_status_for_control');
 
                 $this->save_checkbox('cb_accept_debug_log', 'sd_accept_debug_log');
+                $this->save_checkbox('cb_send_email_tracking_code', 'sd_send_email_tracking_code');
+
             }
         }
 

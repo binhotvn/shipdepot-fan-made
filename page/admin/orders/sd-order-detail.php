@@ -375,8 +375,20 @@ function sd_submit_data_and_save_to_order_meta_data(WC_Order $order, $is_edit, $
                         $order_note = __('Vận đơn tạo thành công. Mã vận đơn', 'ship-depot-translate');
                         $order_note = $order_note . ' ' . $rs->Data->TrackingNumber;
                         $order->add_order_note($order_note);
+
+
+                        $send_tracking_code = get_option('sd_send_email_tracking_code')
+                        if (!Ship_Depot_Helper::check_null_or_empty($send_tracking_code) && $send_tracking_code == 'yes') {
+                
+                                        $customer_notification_notes = __('Đơn hàng quý khách đang giao hàng thông qua Giao Hàng Tiết Kiệm với mã vận đơn: %s' , 'ship-depot-translate');
+                                        $customer_notification_notes = sprintf($customer_notification_notes, $rs->Data->TrackingNumber);
+                                        $order->add_order_note($customer_notification_notes, 1);
+                        }
+                        
+                        $can_log = get_option('sd_accept_debug_log');
+
                         if (!Ship_Depot_Helper::check_null_or_empty($rs->Data->ShipDepotID)) {
-                            $order_note = 'order.id (GHTK): ' . $rs->Data->ShipDepotID;
+                            $order_note = 'order.Id (GHTK): ' . $rs->Data->ShipDepotID;
                             $order->add_order_note($order_note);
                         }
                         Ship_Depot_Helper::UpdateOrderMetadataWOSave($order, 'sd_ship_info', json_encode($rs->Data, JSON_UNESCAPED_UNICODE));

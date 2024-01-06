@@ -198,6 +198,17 @@ Ship_Depot_Default_Data::DefaultAutoCreateShip();
             <p class="description"><?php esc_html_e('Các thiết lập trên tài khoản của bạn ở ShipDepot sẽ tự động đồng bộ đến đây, trường hợp ngoài ý muốn không tự động đồng bộ thì bạn có thể chủ động thực hiện bằng cách bấm [Đồng bộ thiết lập từ ShipDepot] ở trên.', 'ship-depot-translate') ?></p>
         </div>
     </div>
+    <div class="general-setting-row setting-email-tracking">
+        <b><?php esc_html_e('Gửi Email tới khách hàng khi có mã vận đơn', 'ship-depot-translate') ?></b>
+        <?php
+        $send_email_track_code = Ship_Depot_Helper::check_null_or_empty(get_option('sd_send_email_tracking_code')) ? 'yes' : get_option('sd_send_email_tracking_code');
+        ?>
+
+        <p class="description">
+            <input name="cb_send_email_tracking_code" id="cb_send_email_tracking_code" type="checkbox" value="1" <?php checked($send_email_track_code, 'yes'); ?> />
+            <?php esc_html_e('Ship Depot sẽ gửi email cho khách hàng khi có mã vận đơn hoặc đơn hàng chuyển sang trạng thái đang giao hàng.', 'ship-depot-translate') ?>
+        </p>
+    </div>
 
     <div class="general-setting-row setting-log-debug">
         <b><?php esc_html_e('Ghi debug log', 'ship-depot-translate') ?></b>
@@ -210,4 +221,5 @@ Ship_Depot_Default_Data::DefaultAutoCreateShip();
             <?php esc_html_e('Debug log cung cấp thêm thông tin chi tiết quá trình xử lý vận đơn từ đây với ShipDepot, những thông tin này sẽ giúp bạn hiểu rõ hơn các vấn đề liên quan tới việc hoàn thành vận đơn. Tuy nhiên thông tin chi tiết có thể làm lộ thông tin cá nhân của bạn và khách hàng, bạn nên cân nhắc khi bật tính năng này.', 'ship-depot-translate') ?>
         </p>
     </div>
+
 </div>
