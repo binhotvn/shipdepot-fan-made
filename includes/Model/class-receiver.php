@@ -18,7 +18,7 @@ if (!class_exists('Ship_Depot_Receiver')) {
                 }
             }
             parent::MapData($object, $this);
-            Ship_Depot_Logger::wrlog('[Ship_Depot_Receiver] this: ' . print_r($this, true));
+            // Ship_Depot_Logger::wrlog('[Ship_Depot_Receiver] this: ' . print_r($this, true));
         }
     }
 }

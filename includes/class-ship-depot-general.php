@@ -125,6 +125,7 @@ final class Ship_Depot
     private function hooks()
     {
         add_action('admin_notices', array($this, 'check_notify_update_plugin'), 99);
+        add_action('admin_notices', array($this, 'notify_switch_classic_checkout'), 99);
         if (!Ship_Depot_Helper::is_woocommerce_activated()) {
             add_action('admin_notices', array($this, 'no_woocommerce_deactivated'), 99);
             add_action('admin_init', array($this, 'auto_deactivate'));
@@ -142,7 +143,8 @@ final class Ship_Depot
         }
         //add_filter('woocommerce_locate_template', array($this, 'log_template'), 10, 3);
         //add_filter('woocommerce_locate_template', array($this, 'woocommerce_locate_template'), 10, 3);
-
+        //Extend time out request
+        add_filter('http_request_timeout', array($this, 'sd_http_request_timeout_extend'));
     }
 
     public function log_template($template, $template_name, $template_path)
@@ -467,7 +469,7 @@ final class Ship_Depot
             <div class="vf-notice notice notice-error is-dismissible">
                 <p style="color: #ff0000;">
                     <?php
-                    $plugin_page = admin_url('plugins.php'); //get_site_url() . '/wp-admin/plugins.php';
+                    $plugin_page = admin_url('plugins.php');
                     printf(
                         esc_html__('%s cần phải nâng cấp lên phiên bản mới nhất để tránh bị lỗi. Vui lòng vào trang %s tìm Ship Depot để nâng cấp.', 'ship-depot-translate'),
                         '<strong>' . esc_html__('Ship Depot for WooCommerce', 'ship-depot-translate') . '</strong>',
@@ -492,7 +494,7 @@ final class Ship_Depot
                 <div class="vf-notice notice notice-error is-dismissible">
                     <p style="color: #ff0000;">
                         <?php
-                        $plugin_page = admin_url('plugins.php'); //get_site_url() . '/wp-admin/plugins.php';
+                        $plugin_page = admin_url('plugins.php');
                         printf(
                             esc_html__('%s cần phải nâng cấp lên phiên bản mới nhất để tránh bị lỗi. Vui lòng vào trang %s tìm Ship Depot để nâng cấp.', 'ship-depot-translate'),
                             '<strong>' . esc_html__('Ship Depot for WooCommerce', 'ship-depot-translate') . '</strong>',
@@ -507,9 +509,26 @@ final class Ship_Depot
         }
     }
 
+    public function notify_switch_classic_checkout()
+    { ?>
+        <div class="vf-notice notice notice-error is-dismissible">
+            <p>
+                <?php
+                printf(
+                    esc_html__('%s cần phải chỉnh về classic checkout để tránh bị lỗi. Vui lòng vào %s để xem hướng dẫn.', 'ship-depot-translate'),
+                    '<strong>' . esc_html__('Ship Depot for WooCommerce', 'ship-depot-translate') . '</strong>',
+                    '<a href="' . esc_url(get_site_url() . '/wp-admin/admin.php?page=wc-settings&tab=sd_settings&section=classic_checkout_direction') . '">đây<strong></strong></a>'
+                );
+                ?>
+
+            </p>
+        </div>
+    <?php
+    }
+
     public function auto_deactivate()
     {
-        ?>
+    ?>
 <?php
         $vf_plugin = '';
         if (is_multisite()) {
@@ -531,5 +550,10 @@ final class Ship_Depot
                 unset($_GET['activate']);
             }
         }
+    }
+
+    public function sd_http_request_timeout_extend($time)
+    {
+        return 60;
     }
 }

@@ -2,9 +2,9 @@
 Contributors: shipdepot
 Tags: shipping, couriers, ghn, ghtk, aha
 Requires at least: 6.1.1
-Tested up to: 6.4.2
+Tested up to: 6.4.3
 Requires PHP: 7.4.3
-Stable tag: 1.2.10
+Stable tag: 1.2.15
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -64,6 +64,23 @@ Nothing notice yet!
 3. Hiển thị thông tin vận đơn ở trang WooCommerce/Đơn hàng.
 
 == Changelog ==
+
+= 1.2.15 =
+* Thêm thông báo 'Chọn đơn vị vận chuyển' ở trang thanh toán.
+* Thêm nút tải lại để lấy danh sách đơn vị vận chuyển nếu danh sách đơn vị vận chuyển bị trống.
+
+= 1.2.14 =
+* Thêm phần hướng dẫn chỉnh về Classic Checkout trong trang Cài Đặt của Ship Depot.
+
+= 1.2.13 =
+* Sửa một số lỗi nhỏ.
+
+= 1.2.12 =
+* Sửa một số lỗi nhỏ.
+
+= 1.2.11 =
+* Sửa một số lỗi nhỏ.
+
 = 1.2.10 =
 * Sửa một số lỗi nhỏ.
 

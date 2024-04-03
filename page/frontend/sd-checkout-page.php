@@ -13,6 +13,7 @@ function hide_shipping_rates_from_packages($packags)
 {
     return array();
 }
+
 add_filter('woocommerce_cart_needs_shipping_address', 'set_cart_needs_shipping_address_filter');
 function set_cart_needs_shipping_address_filter($condition)
 {
@@ -28,7 +29,6 @@ function save_notes_session_init()
     $notes = (isset($_POST['notes'])) ? sanitize_textarea_field($_POST['notes']) : '';
     WC()->session->set('shipping_notes', $notes);
     wp_send_json_success('success');
-    die(); //bắt buộc phải có khi kết thúc
 }
 
 add_filter('woocommerce_cart_ready_to_calc_shipping', 'sd_show_shipping_in_checkout_page');
@@ -49,8 +49,8 @@ add_action('woocommerce_checkout_before_terms_and_conditions', 'sd_woocommerce_r
 function sd_woocommerce_review_order_before_order_total()
 {
     Ship_Depot_Logger::wrlog('[sd_woocommerce_review_order_before_order_total] needs_shipping_address: ' . print_r(WC()->cart->needs_shipping_address(), true));
-    Ship_Depot_Logger::wrlog('[sd_woocommerce_review_order_before_order_total] _POST: ' . print_r($_POST, true));
-    Ship_Depot_Logger::wrlog('[sd_woocommerce_review_order_before_order_total] _GET: ' . print_r($_GET, true));
+    // Ship_Depot_Logger::wrlog('[sd_woocommerce_review_order_before_order_total] _POST: ' . print_r($_POST, true));
+    // Ship_Depot_Logger::wrlog('[sd_woocommerce_review_order_before_order_total] _GET: ' . print_r($_GET, true));
     Ship_Depot_Logger::wrlog('[sd_woocommerce_review_order_before_order_total] cart get_total: ' . print_r(WC()->cart->get_total('number'), true));
     $str_courier_setting = get_option('sd_setting_courier');
     if (!Ship_Depot_Helper::check_null_or_empty($str_courier_setting)) {
@@ -91,7 +91,7 @@ function sd_woocommerce_review_order_before_order_total()
             $regular_price = $product_data['regular_price'];
             $item_regular_price_total += floatval($regular_price) * floatval($item['quantity']);
             $it->RegularPrice = $regular_price;
-            Ship_Depot_Logger::wrlog('[sd_woocommerce_review_order_before_order_total] it: ' . print_r($it, true));
+            // Ship_Depot_Logger::wrlog('[sd_woocommerce_review_order_before_order_total] it: ' . print_r($it, true));
             //
             array_push($list_packages_sizes, $package_size);
             array_push($list_items, $it);
@@ -112,7 +112,7 @@ function sd_woocommerce_review_order_before_order_total()
     $cur_shipping_fee = GetShippingFeeSession();
     if (isset($_POST['post_data']) && !Ship_Depot_Helper::check_null_or_empty(sanitize_text_field($_POST['post_data']))) {
         $post_data = sanitize_text_field($_POST['post_data']);
-        Ship_Depot_Logger::wrlog('[sd_woocommerce_review_order_before_order_total] post_data: ' . print_r($post_data, true));
+        // Ship_Depot_Logger::wrlog('[sd_woocommerce_review_order_before_order_total] post_data: ' . print_r($post_data, true));
         $data = array();
         $vars = explode('&', $post_data);
         foreach ($vars as $k => $value) {
@@ -200,6 +200,9 @@ function sd_woocommerce_review_order_before_order_total()
                 <input type="hidden" id="ghtkHamlet" name="shipdepot[receiver][ghtkHamlet]" value="" />
                 <?php
                 // Ship_Depot_Logger::wrlog('[sd_woocommerce_review_order_before_order_total] list_shipping: ' . print_r($list_shipping, true));
+                ?>
+                <p style="font-size: 1.5rem; color:#0064ff; margin-bottom: 10px;"><?php _e('Vui lòng chọn đơn vị vận chuyển trước khi bấm đặt hàng.', 'ship-depot-translate') ?></p>
+                <?php
                 if (isset($list_shipping) && $list_shipping != false) {
                     foreach ($list_shipping as $courier_obj) {
                         $courier = new Ship_Depot_Courier_Response($courier_obj);
@@ -288,8 +291,14 @@ function sd_woocommerce_review_order_before_order_total()
                         <textarea name="shipdepot_shipping_notes"><?php echo isset($notes) ? esc_textarea($notes) : '' ?></textarea>
                     </div>
                 <?php
+                } else {
+                ?>
+                    <div style="margin: 10px 0 20px 0; display: flex; flex-wrap: wrap;align-items: center;">
+                        <p style="color:#0064ff;margin-right: 10px;"><?php _e('Nếu đã điền đủ thông tin thanh toán/vận chuyển mà không thấy danh sách đơn vị vận chuyển thì vui lòng bấm vào đây', 'ship-depot-translate') ?></p>
+                        <a id="sd_reload_shipping"><?php _e('Tải lại', 'ship-depot-translate') ?></a>
+                    </div>
+                <?php
                 }
-
                 ?>
                 <input type="hidden" id="SDOrderTotal" value="<?php echo esc_attr($cart_total_without_shipping + GetShippingFeeSession()) ?>" />
                 <script type="text/javascript">
@@ -301,6 +310,14 @@ function sd_woocommerce_review_order_before_order_total()
                         // + currencySymbolEle.outerHTML
                         amountEle.html(formatVNCurrency(<?php echo esc_attr($cart_total_without_shipping + GetShippingFeeSession()) ?>));
                     });
+
+                    //
+                    console.log('Validate shipping');
+                    if (document.querySelectorAll(".radio_shipping_fee[checked=checked]").length > 0) {
+                        document.getElementById('place_order').disabled = false;
+                    } else {
+                        document.getElementById('place_order').disabled = true;
+                    }
                 </script>
             </div>
         </td>
@@ -384,9 +401,9 @@ add_action('woocommerce_checkout_order_processed', 'sd_action_checkout_order_pro
 function sd_action_checkout_order_processed($order_id, $posted_data, WC_Order $order)
 {
     Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] order_id: ' . print_r($order_id, true));
-    Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] posted_data: ' . print_r($posted_data, true));
+    // Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] posted_data: ' . print_r($posted_data, true));
     Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] _POST: ' . print_r($_POST, true));
-    Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] order bf: ' . print_r($order, true));
+    // Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] order bf: ' . print_r($order, true));
     $shipping_fee = GetShippingFeeFromPostData($_POST); //GetShippingFeeSession();
     Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] shipping_fee: ' . print_r($shipping_fee, true));
     // get an instance of the order object
@@ -412,7 +429,7 @@ function sd_action_checkout_order_processed($order_id, $posted_data, WC_Order $o
     $order->add_item($item);
     $order->calculate_shipping();
     $order->calculate_totals();
-    Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] order aft add shipping: ' . print_r($order, true));
+    // Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] order aft add shipping: ' . print_r($order, true));
     //
     //Save ship depot data
     //From checkout always not create ship, just create ship if status order matches status auto create ship
@@ -423,11 +440,14 @@ function sd_action_checkout_order_processed($order_id, $posted_data, WC_Order $o
     $list_items = $order->get_items();
     $list_packages_sizes = [];
     foreach ($list_items as $item) {
-        Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] item: ' . print_r($item, true));
-        $item_product = new WC_Order_Item_Product($item);
-        Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] item_product: ' . print_r($item_product, true));
-        $product = new WC_Product($item_product->get_product_id());
-        Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] product: ' . print_r($product, true));
+        // Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] item: ' . print_r($item, true));
+        $item_product = new WC_Order_Item_Product($item->get_id());
+        // Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] item_product: ' . print_r($item_product, true));
+        $product = $item_product->get_product();
+        // Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] product: ' . print_r($product, true));
+        // $item_product = new WC_Order_Item_Product($item);
+        // $product = new WC_Product($item_product->get_product_id());
+
         $package_size = new Ship_Depot_Package();
         $package_size->Length = Ship_Depot_Helper::ConvertToShipDepotDimension($product->get_length());
         $package_size->Width = Ship_Depot_Helper::ConvertToShipDepotDimension($product->get_width());
@@ -551,6 +571,8 @@ function sd_action_checkout_order_processed($order_id, $posted_data, WC_Order $o
     $shipping_notes = Ship_Depot_Helper::check_null_or_empty(sanitize_textarea_field($_POST['shipdepot_shipping_notes'])) ? '' : sanitize_textarea_field($_POST['shipdepot_shipping_notes']);
     Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] shipping_notes: ' . print_r($shipping_notes, true));
     Ship_Depot_Helper::UpdateOrderMetadataWOSave($order, 'sd_shipping_notes', $shipping_notes);
+    //Create flag to detect order create from checkout
+    Ship_Depot_Helper::UpdateOrderMetadataWOSave($order, 'sd_from_fe', json_encode(true));
     if (function_exists('sd_save_wc_order_other_fields')) {
         // unhook this function so it doesn't loop infinitely
         Ship_Depot_Logger::wrlog('[sd_action_checkout_order_processed] unhook.');
@@ -577,6 +599,12 @@ function sd_woocommerce_after_checkout_validation($data, $errors)
 {
     Ship_Depot_Logger::wrlog('[sd_woocommerce_after_checkout_validation] data: ' . print_r($data, true));
     Ship_Depot_Logger::wrlog('[sd_woocommerce_after_checkout_validation] _POST: ' . print_r($_POST, true));
+    // if (isset($_POST['sd_call_validate']) && sanitize_text_field($_POST['sd_call_validate']) == '1') {
+    //     Ship_Depot_Logger::wrlog('[sd_woocommerce_after_checkout_validation] sd_call_validate: ' . print_r(sanitize_text_field($_POST['sd_call_validate']), true));
+    //     Ship_Depot_Logger::wrlog('[sd_woocommerce_after_checkout_validation] add fake error');
+    //     //Add fake error
+    //     wc_add_notice(__("custom_notice", 'fake_error'), 'error');
+    // }
     //Check address
     if (isset($data['ship_to_different_address']) && sanitize_text_field($data['ship_to_different_address']) == '1') {
         //Check shipping

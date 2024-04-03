@@ -16,7 +16,7 @@ if (!class_exists('Ship_Depot_Ship_From_Station')) {
             $this->District = new Ship_Depot_District();
             $this->Station = new Ship_Depot_Station();
             parent::MapData($object, $this);
-            Ship_Depot_Logger::wrlog('[Ship_Depot_Ship_From_Station] this: ' . print_r($this, true));
+            // Ship_Depot_Logger::wrlog('[Ship_Depot_Ship_From_Station] this: ' . print_r($this, true));
         }
     }
 }

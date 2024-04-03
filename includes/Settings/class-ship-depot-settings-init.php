@@ -13,6 +13,7 @@ class Ship_Depot_Settings_Init
         require_once SHIP_DEPOT_DIR_PATH . 'includes/Settings/class-ship-depot-custom-css.php';
         require_once SHIP_DEPOT_DIR_PATH . 'includes/Settings/class-ship-depot-couriers.php';
         require_once SHIP_DEPOT_DIR_PATH . 'includes/Settings/class-ship-depot-about.php';
+        require_once SHIP_DEPOT_DIR_PATH . 'includes/Settings/class-ship-depot-classic-checkout-direction.php';
         if (is_admin()) {
             add_filter('woocommerce_get_settings_pages', array($this, 'add_woocommerce_settings_tab'), PHP_INT_MAX);
         }

@@ -22,12 +22,29 @@ if (!class_exists('Ship_Depot_Get_Data')) {
             foreach ($this->post_data['shipdepot']['package_id'] as $id) {
                 $pk_id = sanitize_text_field($id);
                 $pk_size = new Ship_Depot_Package();
-                $pk_size->Length = str_replace('.', '', sanitize_text_field($this->post_data['shipdepot'][$pk_id]['length']));
-                $pk_size->Width = str_replace('.', '', sanitize_text_field($this->post_data['shipdepot'][$pk_id]['width']));
-                $pk_size->Height = str_replace('.', '', sanitize_text_field($this->post_data['shipdepot'][$pk_id]['height']));
-                $pk_size->Weight = str_replace('.', '', sanitize_text_field($this->post_data['shipdepot'][$pk_id]['weight']));
+                $length = sanitize_text_field($this->post_data['shipdepot'][$pk_id]['length']);
+                if (!Ship_Depot_Helper::check_null_or_empty($length)) {
+                    $pk_size->Length = floatval(str_replace('.', '', $length));
+                }
+
+                $width = sanitize_text_field($this->post_data['shipdepot'][$pk_id]['width']);
+                if (!Ship_Depot_Helper::check_null_or_empty($width)) {
+                    $pk_size->Width = floatval(str_replace('.', '', $width));
+                }
+
+                $height = sanitize_text_field($this->post_data['shipdepot'][$pk_id]['height']);
+                if (!Ship_Depot_Helper::check_null_or_empty($height)) {
+                    $pk_size->Height = floatval(str_replace('.', '', $height));
+                }
+
+                $weight = sanitize_text_field($this->post_data['shipdepot'][$pk_id]['weight']);
+                if (!Ship_Depot_Helper::check_null_or_empty($weight)) {
+                    $pk_size->Weight = floatval(str_replace('.', '', $weight));
+                }
+
                 array_push($list_package_size, $pk_size);
             }
+            Ship_Depot_Logger::wrlog('[get_package_sizes] list_package_size: ' . print_r($list_package_size, true));
             return $list_package_size;
         }
 
@@ -74,15 +91,23 @@ if (!class_exists('Ship_Depot_Get_Data')) {
                 $receiver->Address = Ship_Depot_Helper::check_null_or_empty(sanitize_text_field($this->post_data['shipdepot']['receiver']['address'])) ? '' : sanitize_text_field($this->post_data['shipdepot']['receiver']['address']);
                 $receiver->Phone = Ship_Depot_Helper::check_null_or_empty(sanitize_text_field($this->post_data['shipdepot']['receiver']['phone'])) ? '' : sanitize_text_field($this->post_data['shipdepot']['receiver']['phone']);
             } else {
-                $order = wc_get_order($this->order_id);
-                $receiver->FirstName = $order->get_shipping_first_name();
-                $receiver->LastName = $order->get_shipping_last_name();
-                $receiver->Province = $order->get_shipping_city();
-                $receiver->District = $order->get_meta('_shipping_district', true);
-                $receiver->Ward = $order->get_meta('_shipping_ward', true);
-                $receiver->Address = $order->get_shipping_address_1();
-                $receiver->Phone = $order->get_shipping_phone();
+                // $order = wc_get_order($this->order_id);
+                // $receiver->FirstName = $order->get_shipping_first_name();
+                // $receiver->LastName = $order->get_shipping_last_name();
+                // $receiver->Province = $order->get_shipping_city();
+                // $receiver->District = $order->get_meta('_shipping_district', true);
+                // $receiver->Ward = $order->get_meta('_shipping_ward', true);
+                // $receiver->Address = $order->get_shipping_address_1();
+                // $receiver->Phone = $order->get_shipping_phone();
+                $receiver->FirstName = Ship_Depot_Helper::check_null_or_empty(sanitize_text_field($this->post_data['_shipping_first_name'])) ? '' : sanitize_text_field($this->post_data['_shipping_first_name']);
+                $receiver->LastName = Ship_Depot_Helper::check_null_or_empty(sanitize_text_field($this->post_data['_shipping_last_name'])) ? '' : sanitize_text_field($this->post_data['_shipping_last_name']);
+                $receiver->Province = Ship_Depot_Helper::check_null_or_empty(sanitize_text_field($this->post_data['_shipping_city'])) ? '' : sanitize_text_field($this->post_data['_shipping_city']);
+                $receiver->District = Ship_Depot_Helper::check_null_or_empty(sanitize_text_field($this->post_data['_shipping_district'])) ? '' : sanitize_text_field($this->post_data['_shipping_district']);
+                $receiver->Ward = Ship_Depot_Helper::check_null_or_empty(sanitize_text_field($this->post_data['_shipping_ward'])) ? '' : sanitize_text_field($this->post_data['_shipping_ward']);
+                $receiver->Address = Ship_Depot_Helper::check_null_or_empty(sanitize_text_field($this->post_data['_shipping_address_1'])) ? '' : sanitize_text_field($this->post_data['_shipping_address_1']);
+                $receiver->Phone = Ship_Depot_Helper::check_null_or_empty(sanitize_text_field($this->post_data['_shipping_phone'])) ? '' : sanitize_text_field($this->post_data['_shipping_phone']);
             }
+            Ship_Depot_Logger::wrlog('[get_receiver_info] receiver: ' . print_r($receiver, true));
             return $receiver;
         }
 

@@ -11,7 +11,7 @@ if (!class_exists('Ship_Depot_Fee_Setting')) {
         {
             $this->ListFeeMarkups = [];
             parent::MapData($object, $this);
-            Ship_Depot_Logger::wrlog('[Ship_Depot_Fee_Setting] this: ' . print_r($this, true));
+            // Ship_Depot_Logger::wrlog('[Ship_Depot_Fee_Setting] this: ' . print_r($this, true));
         }
     }
 }

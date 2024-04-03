@@ -46,7 +46,7 @@ if (!class_exists('Ship_Depot_Shipping_Fee_Response')) {
                 }
             }
             parent::MapData($object, $this);
-            Ship_Depot_Logger::wrlog('[Ship_Depot_Shipping_Fee_Response] this: ' . print_r($this, true));
+            // Ship_Depot_Logger::wrlog('[Ship_Depot_Shipping_Fee_Response] this: ' . print_r($this, true));
         }
     }
 }

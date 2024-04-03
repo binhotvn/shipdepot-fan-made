@@ -16,7 +16,7 @@ if (!class_exists('Ship_Depot_Shipping_Fee_Info')) {
         {
             $this->MarkupOption = new Ship_Depot_Fee_Markup_Option();
             parent::MapData($object, $this);
-            Ship_Depot_Logger::wrlog('[Ship_Depot_Shipping_Fee_Info] this: ' . print_r($this, true));
+            // Ship_Depot_Logger::wrlog('[Ship_Depot_Shipping_Fee_Info] this: ' . print_r($this, true));
         }
     }
 }

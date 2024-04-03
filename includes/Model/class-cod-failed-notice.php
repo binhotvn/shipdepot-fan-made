@@ -10,7 +10,7 @@ if (!class_exists('Ship_Depot_COD_Failed_Notice')) {
         function __construct($object = null)
         {
             parent::MapData($object, $this);
-            Ship_Depot_Logger::wrlog('[Ship_Depot_COD_Failed_Notice] this: ' . print_r($this, true));
+            // Ship_Depot_Logger::wrlog('[Ship_Depot_COD_Failed_Notice] this: ' . print_r($this, true));
         }
     }
 }
