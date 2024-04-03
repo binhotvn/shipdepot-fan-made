@@ -138,5 +138,4 @@ function sync_setting_init()
 {
     Ship_Depot_Data::update_data_new_api_key();
     wp_send_json_success("sync success");
-    die(); //bắt buộc phải có khi kết thúc
 }

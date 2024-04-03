@@ -5,7 +5,7 @@ function update_district_ajax()
     if (!isset($_GET['sd-ajax']) || 'update_district' !== $_GET['sd-ajax']) return;
     $province_code = (isset($_POST['province_code'])) ? sanitize_text_field(($_POST['province_code'])) : '';
     Ship_Depot_Address_Helper::get_districts_option_by_province_code($province_code);
-    die();
+    wp_die();
 }
 
 add_action('init', 'update_ward_ajax');
@@ -18,7 +18,7 @@ function update_ward_ajax()
         $province_code = sanitize_text_field($_POST['province_code']);
         Ship_Depot_Address_Helper::get_wards_option_by_district_code($province_code, $district_code);
     }
-    die();
+    wp_die();
 }
 
 
@@ -41,6 +41,7 @@ function load_customer_address_init()
         $reponse->shipping['district'] = $customer->get_meta('shipping_district', true);
         $reponse->shipping['ward'] = $customer->get_meta('shipping_ward', true);
         wp_send_json_success($reponse);
+    } else {
+        wp_die(); //bắt buộc phải có khi kết thúc
     }
-    die(); //bắt buộc phải có khi kết thúc
 }

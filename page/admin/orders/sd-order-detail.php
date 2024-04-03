@@ -1,48 +1,58 @@
 <?php
 // Save the data of the Meta field
-add_action('save_post', 'sd_save_wc_order_other_fields', 10, 1);
+add_action('woocommerce_new_order', 'sd_woocommerce_new_order_action', 10, 2);
+
+function sd_woocommerce_new_order_action($order_id, $order)
+{
+    Ship_Depot_Logger::wrlog('[sd_woocommerce_new_order_action] Begin');
+    //Verify that the nonce is valid.
+    Ship_Depot_Logger::wrlog('[sd_woocommerce_new_order_action] order_id: ' . print_r($order_id, true));
+    // Ship_Depot_Logger::wrlog('[sd_woocommerce_new_order_action] order: ' . print_r($order, true));
+}
+
+add_action('woocommerce_update_order', 'sd_save_wc_order_other_fields', 10, 1);
 if (!function_exists('sd_save_wc_order_other_fields')) {
 
-    function sd_save_wc_order_other_fields($post_id)
+    function sd_save_wc_order_other_fields($order_id)
     {
         Ship_Depot_Logger::wrlog('[sd_save_wc_order_other_fields] Begin');
         //Verify that the nonce is valid.
-        Ship_Depot_Logger::wrlog('[sd_save_wc_order_other_fields] post_id: ' . print_r($post_id, true));
-        // Ship_Depot_Logger::wrlog('[sd_save_wc_order_other_fields] _POST: ' . print_r($_POST, true));
+        Ship_Depot_Logger::wrlog('[sd_save_wc_order_other_fields] order_id: ' . print_r($order_id, true));
+        Ship_Depot_Logger::wrlog('[sd_save_wc_order_other_fields] _POST: ' . print_r($_POST, true));
 
         // If this is an autosave, our form has not been submitted, so we don't want to do anything.
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             Ship_Depot_Logger::wrlog('[sd_save_wc_order_other_fields] DOING_AUTOSAVE');
-            return $post_id;
+            return $order_id;
         }
 
         // Check the user's permissions.
         if (!isset($_POST['action'])) {
             Ship_Depot_Logger::wrlog('[sd_save_wc_order_other_fields] action not found');
-            return $post_id;
+            return $order_id;
         }
 
         Ship_Depot_Logger::wrlog('[sd_save_wc_order_other_fields] action: ' . sanitize_key($_POST['action']));
         if ('edit_order' == sanitize_key($_POST['action']) || 'editpost' == sanitize_key($_POST['action'])) {
-            if (!current_user_can('edit_post', $post_id)) {
-                return $post_id;
+            if (!current_user_can('edit_post', $order_id)) {
+                return $order_id;
             }
         }
 
         if (!isset($_POST['sd_order_detail_nonce']) || !wp_verify_nonce($_POST['sd_order_detail_nonce'], 'sd_order_detail')) {
             Ship_Depot_Logger::wrlog('[sd_save_wc_order_other_fields] Verify nonce failed.');
-            return $post_id;
+            return $order_id;
         }
         Ship_Depot_Logger::wrlog('[sd_save_wc_order_other_fields] Start SAVE.');
         //
-        $str_ship_info = Ship_Depot_Helper::GetOrderMetadata($post_id, 'sd_ship_info', true);
+        $str_ship_info = Ship_Depot_Helper::GetOrderMetadata($order_id, 'sd_ship_info', true);
         Ship_Depot_Logger::wrlog('[sd_save_wc_order_other_fields] str_ship_info: ' . $str_ship_info);
         if (!Ship_Depot_Helper::check_null_or_empty($str_ship_info)) {
             //Tạm thời ko cho sửa vận đơn
-            //sd_submit_data_and_save_to_order_meta_data($post_id, true);
-            sd_edit_cod_amount($post_id);
+            //sd_submit_data_and_save_to_order_meta_data($order_id, true);
+            sd_edit_cod_amount($order_id);
         } else {
-            sd_woocommerce_new_shipping($post_id);
+            sd_woocommerce_new_shipping($order_id);
         }
     }
 }
@@ -152,7 +162,7 @@ function sd_submit_data_and_save_to_order_meta_data(WC_Order $order, $is_edit, $
         if (function_exists('sd_save_wc_order_other_fields')) {
             // unhook this function so it doesn't loop infinitely
             Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] unhook.');
-            remove_action('save_post', 'sd_save_wc_order_other_fields', 10, 1);
+            remove_action('woocommerce_update_order', 'sd_save_wc_order_other_fields', 10);
             //
         }
 
@@ -163,11 +173,14 @@ function sd_submit_data_and_save_to_order_meta_data(WC_Order $order, $is_edit, $
         if (function_exists('sd_save_wc_order_other_fields')) {
             // re-hook this function.
             Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] re-hook.');
-            add_action('save_post', 'sd_save_wc_order_other_fields', 10, 1);
+            add_action('woocommerce_update_order', 'sd_save_wc_order_other_fields', 10, 1);
         }
         return false;
     }
     $get_data = new Ship_Depot_Get_Data($_POST, $order->get_id());
+
+    //Create flag to detect order create from checkout
+    Ship_Depot_Helper::UpdateOrderMetadataWOSave($order, 'sd_from_fe', json_encode(false));
 
     //List package sizes
     $list_package_size = $get_data->get_package_sizes();
@@ -292,16 +305,17 @@ function sd_submit_data_and_save_to_order_meta_data(WC_Order $order, $is_edit, $
                 Ship_Depot_Helper::check_null_or_empty($receiver->Phone)
             ) {
                 Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] $receiver properties null => Not call API');
+                Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] $receiver: ' . print_r($receiver, true));
                 // unhook this function so it doesn't loop infinitely
                 Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] unhook.');
-                remove_action('save_post', 'sd_save_wc_order_other_fields', 10, 1);
+                remove_action('woocommerce_update_order', 'sd_save_wc_order_other_fields', 10);
                 //
                 //Save order meta data to db
                 Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] order save.');
                 $order->save();
                 // re-hook this function.
                 Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] re-hook.');
-                add_action('save_post', 'sd_save_wc_order_other_fields', 10, 1);
+                add_action('woocommerce_update_order', 'sd_save_wc_order_other_fields', 10, 1);
                 return;
             }
 
@@ -361,10 +375,10 @@ function sd_submit_data_and_save_to_order_meta_data(WC_Order $order, $is_edit, $
                 $data_input["tracking_number"] = '';
                 $data_input["shipment_ISN"] = 0;
             }
-            Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] data_input: ' . print_r($data_input, true));
+            // Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] data_input: ' . print_r($data_input, true));
             $url = SHIP_DEPOT_HOST_API . '/Shipping/CreateShipping';
             $rs = Ship_Depot_Helper::http_post($url, $data_input, array('ShopAPIKey' => $shop_api_key));
-            Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] result call API: ' . print_r($rs, true));
+            // Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] result call API: ' . print_r($rs, true));
             if ($rs->Code > 0) {
                 if (!$is_edit) {
                     if (Ship_Depot_Helper::check_null_or_empty($rs->Data->TrackingNumber)) {
@@ -375,12 +389,10 @@ function sd_submit_data_and_save_to_order_meta_data(WC_Order $order, $is_edit, $
                         $order_note = __('Vận đơn tạo thành công. Mã vận đơn', 'ship-depot-translate');
                         $order_note = $order_note . ' ' . $rs->Data->TrackingNumber;
                         $order->add_order_note($order_note);
-
-
-                        $send_tracking_code = get_option('sd_send_email_tracking_code');
+                        $send_tracking_code = get_option('sd_send_email_tracking_code')
                         if (!Ship_Depot_Helper::check_null_or_empty($send_tracking_code) && $send_tracking_code == 'yes') {
-                
-                                        $customer_notification_notes = __('Đơn hàng quý khách đang giao hàng thông qua Giao Hàng Tiết Kiệm với mã vận đơn: %s' , 'ship-depot-translate');
+
+                                        $customer_notification_notes = __('Đơn hàng quý khách đang giao hàng GHTK với mã vận đơn: %s' , 'ship-depot-translate');
                                         $customer_notification_notes = sprintf($customer_notification_notes, $rs->Data->TrackingNumber);
                                         $order->add_order_note($customer_notification_notes, 1);
                         }
@@ -388,7 +400,7 @@ function sd_submit_data_and_save_to_order_meta_data(WC_Order $order, $is_edit, $
                         $can_log = get_option('sd_accept_debug_log');
 
                         if (!Ship_Depot_Helper::check_null_or_empty($rs->Data->ShipDepotID)) {
-                            $order_note = 'order.Id (GHTK): ' . $rs->Data->ShipDepotID;
+                            $order_note = 'order.id (GHTK): ' . $rs->Data->ShipDepotID;
                             $order->add_order_note($order_note);
                         }
                         Ship_Depot_Helper::UpdateOrderMetadataWOSave($order, 'sd_ship_info', json_encode($rs->Data, JSON_UNESCAPED_UNICODE));
@@ -403,14 +415,14 @@ function sd_submit_data_and_save_to_order_meta_data(WC_Order $order, $is_edit, $
     }
     // unhook this function so it doesn't loop infinitely
     Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] unhook.');
-    remove_action('save_post', 'sd_save_wc_order_other_fields', 10, 1);
+    remove_action('woocommerce_update_order', 'sd_save_wc_order_other_fields', 10);
     //
     //Save order meta data to db
     Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] order save.');
     $order->save();
     // re-hook this function.
     Ship_Depot_Logger::wrlog('[sd_submit_data_and_save_to_order_meta_data] re-hook.');
-    add_action('save_post', 'sd_save_wc_order_other_fields', 10, 1);
+    add_action('woocommerce_update_order', 'sd_save_wc_order_other_fields', 10, 1);
 }
 
 function compare_to_order_meta_and_save(WC_Order $order, $order_meta_key, $data): bool
@@ -655,7 +667,7 @@ function calculateTotal_init()
         $order_id = (isset($_POST['orderID'])) ? sanitize_text_field($_POST['orderID']) : '';
         Ship_Depot_Logger::wrlog('[calculateTotal_init] order_id: ' . $order_id);
         $order = wc_get_order($order_id);
-        Ship_Depot_Logger::wrlog('[calculateTotal_init] order: ' . print_r($order, true));
+        // Ship_Depot_Logger::wrlog('[calculateTotal_init] order: ' . print_r($order, true));
         $oldTotal = $order->get_total();
         $shippings = $order->get_items('shipping');
         if (count($shippings) <= 0) {
@@ -684,13 +696,12 @@ function calculateTotal_init()
         if ($clearShipping == 'false' || $oldTotal != $order->get_total()) {
             $need_reload = true;
         }
-        Ship_Depot_Logger::wrlog('[calculateTotal_init] shipping item: ' . print_r($item, true));
+        Ship_Depot_Logger::wrlog('[calculateTotal_init] need_reload: ' . print_r($need_reload, true));
         wp_send_json_success($need_reload);
     } catch (Exception $e) {
         Ship_Depot_Logger::wrlog('[calculateTotal_init] Exception: ' . print_r($e, true));
         wp_send_json_error($e->getMessage());
     }
-    die(); //bắt buộc phải có khi kết thúc
 }
 
 add_action('wp_ajax_calculate_shipping', 'calculate_shipping_init');
@@ -702,7 +713,7 @@ function calculate_shipping_init()
     Ship_Depot_Logger::wrlog('[calculate_shipping_init] data_input: ' . print_r($data_input, true));
     $order_id = isset($data_input->orderID) ? $data_input->orderID : '';
     $order = wc_get_order($order_id);
-    Ship_Depot_Logger::wrlog('[calculate_shipping_init] order: ' . print_r($order, true));
+    // Ship_Depot_Logger::wrlog('[calculate_shipping_init] order: ' . print_r($order, true));
     $order_subtotal = $order->get_subtotal();
     $data_input->item_total = $order_subtotal;
     //
@@ -769,7 +780,6 @@ function calculate_shipping_init()
     } else {
         wp_send_json_error($rs->Code);
     }
-    die(); //bắt buộc phải có khi kết thúc
 }
 
 add_action('wp_ajax_cancel_shipping', 'cancel_shipping_init');
@@ -779,18 +789,21 @@ function cancel_shipping_init()
     $order_id = (isset($_POST['orderID'])) ? sanitize_text_field($_POST['orderID']) : '';
     $order = wc_get_order($order_id);
     $result = Ship_Depot_Order_Shipping::cancel_shipping($order);
-    if ($result->Code < 0) {
-        wp_send_json_success($result->Message);
-        die();
-    }
     wp_send_json_success('success');
-    die(); //bắt buộc phải có khi kết thúc
+    // Ship_Depot_Logger::wrlog('[cancel_shipping_init] result: ' . print_r($result, true));
+    // if ($result->Code < 0) {
+    //     Ship_Depot_Logger::wrlog('[cancel_shipping_init] wp_send_json_success. Message: ' . $result->Message);
+    //     wp_send_json_success($result->Message);
+    // } else {
+    //     Ship_Depot_Logger::wrlog('[cancel_shipping_init] wp_send_json_success');
+    //     wp_send_json_success('success');
+    // }
 }
 
 function get_list_meta_keys()
 {
     //return [];
-    return ['sd_not_create_ship', 'sd_list_package_size', 'sd_sender_storage', 'sd_sender_info', 'sd_ship_info', 'sd_receiver', 'sd_insurance', 'sd_cod', 'sd_selected_shipping', 'sd_selected_courier', 'sd_shipping_notes', 'sd_customer_pay_shipping', 'sd_is_edit_order', 'sd_list_items', 'sd_cod_failed_info', 'sd_ship_from_station'];
+    return ['sd_not_create_ship', 'sd_list_package_size', 'sd_sender_storage', 'sd_sender_info', 'sd_ship_info', 'sd_receiver', 'sd_insurance', 'sd_cod', 'sd_selected_shipping', 'sd_selected_courier', 'sd_shipping_notes', 'sd_customer_pay_shipping', 'sd_is_edit_order', 'sd_list_items', 'sd_cod_failed_info', 'sd_ship_from_station', 'sd_from_fe'];
 }
 
 //Hide ship depot meta data in order detail page

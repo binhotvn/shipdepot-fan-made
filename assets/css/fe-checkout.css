@@ -33,6 +33,16 @@
   align-items: flex-start;
 }
 
+#sd_reload_shipping {
+  text-decoration: none;
+  background-color: #0064ff;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
 @media screen and (max-width: 599px) {
   /* .courier-fee {
     flex-direction: column;

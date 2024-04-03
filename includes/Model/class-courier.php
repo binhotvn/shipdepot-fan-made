@@ -27,7 +27,7 @@ if (!class_exists('Ship_Depot_Courier')) {
             $this->ShipFromStation = new Ship_Depot_Ship_From_Station();
             $this->ListServices = [];
             parent::MapData($object, $this);
-            Ship_Depot_Logger::wrlog('[Ship_Depot_Courier] this: ' . print_r($this, true));
+            // Ship_Depot_Logger::wrlog('[Ship_Depot_Courier] this: ' . print_r($this, true));
         }
     }
 }

@@ -4,7 +4,7 @@
  * Plugin Name:       Ship Depot
  * Plugin URI:        https://shipdepot.vn/
  * Description:       Ship Depot support shipping couriers in Vietnam like GHN, GHTK, AhaMove.
- * Version:           1.2.10
+ * Version:           1.2.15
  * Author:            ShipDepot.vn
  * Text Domain:       ship-depot-translate
  * Domain Path:       /languages
@@ -34,7 +34,7 @@ if (!defined('SHIP_DEPOT_LOCALE')) {
 }
 
 if (!defined('SHIP_DEPOT_VERSION')) {
-    define('SHIP_DEPOT_VERSION', '1.2.10');
+    define('SHIP_DEPOT_VERSION', '1.2.15');
 }
 
 if (!defined('SHIP_DEPOT_WEIGHT_UNIT')) {

@@ -24,7 +24,7 @@ if (!class_exists('Ship_Depot_Custom_fields')) {
 
 
                 $fields[$item][$item . '_city'] = array(
-                    'label'       => esc_html__('Tỉnh/Thành Phố', ''),
+                    'label'       => esc_html__('Tỉnh/Thành Phố', 'ship-depot-translate'),
                     'required'    => true,
                     'description' => '',
                     'type'        => 'select',
@@ -97,11 +97,15 @@ if (!class_exists('Ship_Depot_Custom_fields')) {
         function sd_woocommerce_default_address_fields($fields)
         {
             //Ship_Depot_Logger::wrlog('[sd_woocommerce_default_address_fields] fields: ' . print_r($fields, true));
+            if (!Ship_Depot_Address_Helper::can_shipping_vietnam()) {
+                Ship_Depot_Logger::wrlog('[sd_woocommerce_default_address_fields] This page is not support shipping to Vietnam.');
+                return $fields;
+            }
+
             unset($fields['company']);
             unset($fields['postcode']);
             unset($fields['state']);
             unset($fields['address_2']);
-            if (!Ship_Depot_Address_Helper::can_shipping_vietnam()) return $fields;
             $fields['first_name']['label'] = esc_html__('Tên', 'ship-depot-translate');
 
             $fields['last_name']['label'] = esc_html__('Họ', 'ship-depot-translate');
@@ -134,3 +138,20 @@ if (!class_exists('Ship_Depot_Custom_fields')) {
 
     new Ship_Depot_Custom_fields();
 }
+
+
+// add_action(
+//     'woocommerce_blocks_loaded',
+//     function () {
+//         __experimental_woocommerce_blocks_register_checkout_field(
+//             array(
+//                 'id'            => 'ship-depot/gov-id',
+//                 'label'         => esc_html__('Phường/Xã', 'ship-depot-translate'),
+//                 'location'      => 'address',
+//                 'required'      => true
+//             ),
+//         );
+//     },
+//     10,
+//     4
+// );

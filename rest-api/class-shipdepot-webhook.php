@@ -87,7 +87,7 @@ if (!class_exists('Ship_Depot_Webhook')) {
                     && $shop_api_key == $rs->APIKey
                 ) {
                     $list_storages = $rs->ListStorages;
-                    Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_storages] list_storages encrypted: ' . print_r($list_storages, true));
+                    // Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_storages] list_storages encrypted: ' . print_r($list_storages, true));
                     $list_storages_decrypted = Ship_Depot_ProtectData::DecryptData($list_storages);
                     Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_storages] list_storages_decrypted: ' . print_r($list_storages_decrypted, true));
                     update_option('sd_list_storages', $list_storages_decrypted);
@@ -111,7 +111,7 @@ if (!class_exists('Ship_Depot_Webhook')) {
                     && $shop_api_key == $rs->APIKey
                 ) {
                     $shop_info = $rs->ShopInfo;
-                    Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_shop_info] shop_info encrypted: ' . print_r($shop_info, true));
+                    // Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_shop_info] shop_info encrypted: ' . print_r($shop_info, true));
                     $shop_info_decrypted = Ship_Depot_ProtectData::DecryptData($shop_info);
                     Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_shop_info] shop_info_decrypted: ' . print_r($shop_info_decrypted, true));
                     update_option('sd_sender_info', $shop_info_decrypted);
@@ -136,7 +136,7 @@ if (!class_exists('Ship_Depot_Webhook')) {
                     && $shop_api_key == $rs->APIKey
                 ) {
                     $list_cour_settings = $rs->ListCourierSettings;
-                    Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_courier_settings] list_cour_settings encrypted: ' . print_r($list_cour_settings, true));
+                    // Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_courier_settings] list_cour_settings encrypted: ' . print_r($list_cour_settings, true));
                     $list_cour_settings_decrypted = Ship_Depot_ProtectData::DecryptData($list_cour_settings);
                     Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_courier_settings] list_cour_settings_decrypted: ' . print_r($list_cour_settings_decrypted, true));
                     update_option('sd_setting_courier', $list_cour_settings_decrypted);
@@ -160,7 +160,7 @@ if (!class_exists('Ship_Depot_Webhook')) {
                     && $shop_api_key == $rs->APIKey
                 ) {
                     $list_cours = $rs->ListCouriers;
-                    Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_couriers] shop_info encrypted: ' . print_r($list_cours, true));
+                    // Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_couriers] shop_info encrypted: ' . print_r($list_cours, true));
                     $list_cour_decrypted = Ship_Depot_ProtectData::DecryptData($list_cours);
                     Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_couriers] shop_info_decrypted: ' . print_r($list_cour_decrypted, true));
                     update_option('sd_list_couriers', $list_cour_decrypted);
@@ -172,7 +172,7 @@ if (!class_exists('Ship_Depot_Webhook')) {
         function sd_update_provinces($request)
         {
             $params = wp_parse_args($request->get_params(), '');
-            Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_provinces] params: ' . print_r($params, true));
+            // Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_update_provinces] params: ' . print_r($params, true));
             if (!Ship_Depot_Helper::check_null_or_empty($params)) {
                 $rs =  (object) $params;
                 $shop_api_key = get_option('sd_api_key');
@@ -196,7 +196,7 @@ if (!class_exists('Ship_Depot_Webhook')) {
         function sd_sync_data_from_admin($request)
         {
             $params = wp_parse_args($request->get_params(), '');
-            Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_sync_data_from_admin] params: ' . print_r($params, true));
+            // Ship_Depot_Logger::wrlog('[Ship_Depot_Webhook][sd_sync_data_from_admin] params: ' . print_r($params, true));
             if (!Ship_Depot_Helper::check_null_or_empty($params)) {
                 $rs =  (object) $params;
                 $shop_api_key = get_option('sd_api_key');

@@ -520,6 +520,25 @@ jQuery(document).ready(function ($)
 
             });
         });
+
+        $('form[name=checkout]').on('click', '#sd_reload_shipping', function (event)
+        {
+            $(document.body).trigger('update_checkout');
+        });
+
+        function CallValidate()
+        {
+            if ($('#sd_call_validate').length == 0)
+            {
+                $('form[name=checkout]').append('<input type="hidden" id="sd_call_validate" name="sd_call_validate" value="1">');
+            }
+            else
+            {
+                $('#sd_call_validate').val('1');
+            }
+            $('#place_order').click();
+        }
+
     }
 
 

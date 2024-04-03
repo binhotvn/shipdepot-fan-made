@@ -49,7 +49,8 @@ function GetShippingFee(paramAjax, isAddNew)
                             <a href="javascript:;" id="btn_change_ghtk_hamlet">${sd_order_detail_params.l10n.change_text}</a>
                         </div>
                     </div>`
-                } else
+                }
+                else
                 {
                     inHTML += `</div>`;
                 }
@@ -61,7 +62,8 @@ function GetShippingFee(paramAjax, isAddNew)
                     if (key == 'ListServices')
                     {
                         courClone[key] = [];
-                    } else if (key == 'LogoURL')
+                    }
+                    else if (key == 'LogoURL')
                     {
                         courClone[key] = '';
                     }
@@ -107,7 +109,8 @@ function GetShippingFee(paramAjax, isAddNew)
                         if (courier.CourierID == sd_order_detail_params.sd_aha_code)
                         {
                             inHTML += `<p class="description">${sd_order_detail_params.l10n.aha_shipping_time_text} ${serv.TimeExpected}</p>`;
-                        } else
+                        }
+                        else
                         {
                             inHTML += `<p class="description">${sd_order_detail_params.l10n.shipping_time_text} ${serv.TimeExpected}</p>`;
                         }
@@ -149,7 +152,8 @@ function GetShippingFee(paramAjax, isAddNew)
                         jQuery(this).prop('checked', true).trigger('change');
                     }
                 });
-            } else
+            }
+            else
             {
 
             }
@@ -219,19 +223,21 @@ function updateShippingFee(orderID, isclearShipping, json = '', fromNotCreateShi
                 {
                     console.log(`[updateShippingFee] recalculateTotal`);
                     recalculateTotal();
-                } else
+                }
+                else
                 {
                     unblockListItemBox();
                 }
             },
             error: function (jqXHR, textStatus, errorThrown)
             {
-                alert(sd_order_detail_params.error_messages.error_total);
+                // alert(sd_order_detail_params.error_messages.error_total);
                 unblockListItemBox();
                 console.log('[CalculateTotal] error occured: ' + textStatus, errorThrown);
             }
         });
-    } else
+    }
+    else
     {
         unblockListItemBox();
     }
@@ -259,7 +265,8 @@ function HandleSelectedShipping(jsonNewService)
                 jQuery(divPickYes).addClass('pick-station-yes--disabled');
             }
         }
-    } else
+    }
+    else
     {
         if (jQuery(divPickYes).hasClass('pick-station-yes--disabled'))
         {
@@ -277,7 +284,8 @@ function clearShippingFee(orderID, removeSelectedShipping)
     {
         jQuery('#selectedShipping').val('');
         updateShippingFee(orderID, true, '', false, true);
-    } else
+    }
+    else
     {
         updateShippingFee(orderID, true, jQuery('#selectedShipping').val(), false, true);
     }
@@ -299,7 +307,8 @@ function checkPackage(highlightError = true)
                 }
             }
             hasError = true;
-        } else
+        }
+        else
         {
             if (jQuery(this).hasClass('error-class'))
             {
@@ -369,7 +378,8 @@ function checkReceiver(highlightError = true)
                 hasError = true;
             }
         });
-    } else
+    }
+    else
     {
         if (!jQuery('#_shipping_last_name').val() || !jQuery('#_shipping_first_name').val() || !jQuery('#_shipping_country').val() || !jQuery('#_shipping_phone').val() || !jQuery('#_shipping_address_1').val() || !jQuery('#_shipping_ward').val() || !jQuery('#_shipping_district').val() || !jQuery('#_shipping_city').val())
         {
@@ -395,12 +405,14 @@ function checkSelectedShipping()
             msgHtml = sd_order_detail_params.error_messages.error_selected_shipping;
             jQuery('#error_message_content').html(msgHtml);
             setDisableBtnSave(true);
-        } else
+        }
+        else
         {
             jQuery('#error_message_content').html(newError);
             setDisableBtnSave(false);
         }
-    } else
+    }
+    else
     {
         jQuery('#error_message_content').html(newError);
         setDisableBtnSave(false);
@@ -413,7 +425,8 @@ function checkShipStation()
     if (jQuery('#error_station_content').text())
     {
         return false;
-    } else
+    }
+    else
     {
         return true;
     }
@@ -442,7 +455,8 @@ function checkShowGHTKHamlet()
             cusDist = jQuery('#sl_receiver_district').val();
             cusWard = jQuery('#sl_receiver_ward').val();
             cusAddr = jQuery('#receiver_address').val();
-        } else if (type == 'current')
+        }
+        else if (type == 'current')
         {
             cusProvince = jQuery('#_shipping_city').val();
             cusProvinceText = jQuery('#_shipping_city option:selected').text();
@@ -515,12 +529,14 @@ function checkShowGHTKHamlet()
                             }
 
                             jQuery('#myModal').show();
-                        } else
+                        }
+                        else
                         {
                             if (isSameAddr)
                             {
-                                return; s
-                            } else
+                                return;
+                            }
+                            else
                             {
                                 alert('Lấy danh sách địa chỉ cấp 4 với tỉnh ' + cusProvinceText + ' thất bại. Vui lòng thử lại sau.');
                             }
@@ -533,7 +549,8 @@ function checkShowGHTKHamlet()
                         if (isSameAddr)
                         {
                             return;
-                        } else
+                        }
+                        else
                         {
                             alert('Lấy danh sách địa chỉ cấp 4 với tỉnh ' + cusProvinceText + ' thất bại. Vui lòng thử lại sau.');
                         }
@@ -548,6 +565,7 @@ function checkShowGHTKHamlet()
 
 function validateData(orderID, validateOnly = false)
 {
+    let haveErrorBf = haveError();
     jQuery('#error_message_content').empty();
     if (jQuery('#cb_not_create_shipping').is(':checked') == true)
     {
@@ -560,11 +578,16 @@ function validateData(orderID, validateOnly = false)
     {
         checkSelectedShipping();
         return true;
-    } else
+    }
+    else
     {
         if (!validateOnly)
         {
-            clearShippingFee(orderID, false);
+            if (!haveErrorBf)
+            {
+                console.log("clear shipping before error");
+                clearShippingFee(orderID, false);
+            }
         }
 
         if (!pkCheck || !rcCheck)
@@ -575,10 +598,12 @@ function validateData(orderID, validateOnly = false)
             if (!pkCheck && !rcCheck)
             {
                 msgHtml = msgHtml.replace('[param]', pkMsg + ` ${sd_order_detail_params.error_messages.and} ` + rcvMsg);
-            } else if (!pkCheck)
+            }
+            else if (!pkCheck)
             {
                 msgHtml = msgHtml.replace('[param]', pkMsg);
-            } else if (!rcCheck)
+            }
+            else if (!rcCheck)
             {
                 msgHtml = msgHtml.replace('[param]', rcvMsg);
             }
@@ -590,6 +615,21 @@ function validateData(orderID, validateOnly = false)
     }
 }
 
+function haveError()
+{
+    let error = false;
+    jQuery('.error_content').each(function ()
+    {
+        let content = jQuery(this).text();
+        if (!isNullorEmpty(content))
+        {
+            error = true;
+            return false;
+        }
+    })
+    return error;
+}
+
 function setDisableBtnSave(isDisable)
 {
     const btnSave = jQuery('button[type=submit][name=save]')
@@ -599,7 +639,8 @@ function setDisableBtnSave(isDisable)
         {
             btnSave.addClass("button-disabled");
         }
-    } else
+    }
+    else
     {
         btnSave.removeClass("button-disabled");
     }
@@ -651,7 +692,8 @@ function CalculateShippingFee(orderID, isAddNew)
             Address: jQuery("#_shipping_address_1").val(),
             Phone: jQuery("#_shipping_phone").val()
         }
-    } else
+    }
+    else
     {
         receiver = {
             FirstName: jQuery("#receiver_first_name").val(),
@@ -855,7 +897,8 @@ jQuery(document).ready(function ($)
         if ($('#lb_tracking_number').length > 0 && $('#lb_tracking_number').text())
         {
 
-        } else
+        }
+        else
         {
             validateData(null, true);
         }
@@ -902,7 +945,8 @@ jQuery(document).ready(function ($)
                     jQuery('.load_customer_shipping').parents('.order_data_column').find('.none_set').css('color', '');
                     updateShippingFee(orderID, true, $('#selectedShipping').val(), fromNotCreateShip, true);
                     checkSelectedShipping();
-                } else
+                }
+                else
                 {
                     $('#shipping_info').show();
                     fromNotCreateShip = true;
@@ -956,7 +1000,8 @@ jQuery(document).ready(function ($)
                 {
                     $('#package_content').hide();
                     $("#btn_expand_package").attr("src", `${sd_order_detail_params.sd_dir_url}assets/images/ic_down_arrow_black_16px.png`);
-                } else
+                }
+                else
                 {
                     $('#package_content').show();
                     $("#btn_expand_package").attr("src", `${sd_order_detail_params.sd_dir_url}assets/images/ic_up_arrow_black_16px.png`);
@@ -1119,7 +1164,8 @@ jQuery(document).ready(function ($)
                 if (this.value == 'current')
                 {
                     $('#receiver_info').hide();
-                } else if (this.value == 'other')
+                }
+                else if (this.value == 'other')
                 {
                     $('#receiver_info').show();
                 }
@@ -1134,7 +1180,8 @@ jQuery(document).ready(function ($)
                 {
                     $('#insr_price').show();
                     //$('#tb_ins_fee').val('0');
-                } else
+                }
+                else
                 {
                     $('#insr_price').hide();
                     //$('#tb_ins_fee').val('');
@@ -1151,7 +1198,8 @@ jQuery(document).ready(function ($)
                 if ($(this).is(':checked'))
                 {
                     $('#cod_price_content').show();
-                } else
+                }
+                else
                 {
                     $('#cod_price_content').hide();
                 }
@@ -1167,7 +1215,8 @@ jQuery(document).ready(function ($)
                 {
                     $('#advance_content').hide();
                     $("#btn_expand_advance").attr("src", `${sd_order_detail_params.sd_dir_url}assets/images/ic_down_arrow_black_16px.png`);
-                } else
+                }
+                else
                 {
                     $('#advance_content').show();
                     $("#btn_expand_advance").attr("src", `${sd_order_detail_params.sd_dir_url}assets/images/ic_up_arrow_black_16px.png`);
@@ -1248,18 +1297,10 @@ jQuery(document).ready(function ($)
                         type: 'POST',
                         success: function (response)
                         {
-                            if (response.data == "success")
-                            {
-                                location.reload();
-                            } else
-                            {
-                                unblock($('#sd_meta_boxes'));
-                                alert(response.data);
-                            }
+                            location.reload();
                         },
                         error: function (jqXHR, textStatus, errorThrown)
                         {
-                            alert(sd_order_detail_params.error_messages.cancel_shipping);
                             console.log('[CancelShippingFee] error occured: ' + textStatus, errorThrown);
                             location.reload();
                         }
@@ -1309,7 +1350,8 @@ jQuery(document).ready(function ($)
                 if (isNullorEmpty($('#tb_cod_edit_amount').val()))
                 {
                     $('#tb_cod_edit_amount').addClass('error-class');
-                } else
+                }
+                else
                 {
                     $('#tb_cod_edit_amount').removeClass('error-class');
                     $('#is_cod_edit').val('true');
